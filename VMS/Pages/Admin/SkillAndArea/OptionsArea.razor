@@ -1,0 +1,81 @@
+﻿@using VMS.Application.ViewModels;
+
+<div class="my-modal">
+    <div class="modal__content">
+        <div class="modal__options @(isAddSuccess? " d-none" : "d-block" )">
+            <div @onclick="CloseModalAsync" class="icon-close">
+                <span class="material-icons">
+                    close
+                </span>
+            </div>
+            <h3 class="text-center ">@(IsAdd ? "Thêm" : "Sửa")  <span>lĩnh vực mới</span></h3>
+            <EditForm Model="Area" OnValidSubmit="OnValidSubmitAsync">
+                <DataAnnotationsValidator />
+                <div class="d-flex align-items-center mb-20">
+                    <p class="form__title form__title--name">Tên lĩnh vực <span>(*)</span>:</p>
+                    <div class="">
+                        <InputText @bind-Value="@Area.Name" class="form-control"/>
+                    </div>
+                </div>
+                <div class="d-flex align-items-center mb-30">
+                    <p class="form__title form__title--icon">Icon name <span>(*)</span>:</p>
+                    <div class="position-relative">
+                        <InputText @bind-Value="@Area.Icon" class="form-control" />
+                        <span class="form__note">Icon name lấy từ Material Icons</span>
+                    </div>
+                </div>
+                <div class="d-flex align-items-center mb-20">
+                    <p class="form__title form__title--color">Mã màu <span>(*)</span>:</p>
+                    <div class="position-relative">
+                        <InputText @bind-Value="@Area.Color" class="form-control" />
+                        <InputText type="color" @bind-Value="@Area.Color" class="input-color" id="input-color" />
+                        <label for="input-color" class="material-icons-outlined icon-color">
+                            format_color_fill
+                        </label>
+                    </div>
+                </div>
+                <div class="d-flex align-items-center form__prioritize me-3">
+                    <input @bind="Area.IsPinned" class="check-box" type="checkbox" id="all">
+                    <label for="all">Thêm lĩnh vực ưu tiên </label>
+                </div>
+                <div class="modal__areaPrioritize @(!IsValidPinnedArea() ? "d-block" : "d-none" )">
+                    <hr />
+                    <h3 class="text-center mb-1">Lĩnh vực ưu tiên <span>đã đạt giới hạn</span></h3>
+                    <p class="mb-3">Vui lòng gỡ ưu tiên ít nhất một lĩnh vực để tiếp tục thao tác này</p>
+                    <div class="row">
+                        @foreach (var item in pinnedAreas)
+                        {
+                            <div class="col-6 d-flex align-items-center item">
+                                <input @bind="item.IsPinned" class="check-box" type="checkbox" id="areaPrioritize-@item.Id">
+                                <label for="areaPrioritize-@item.Id" class="d-flex align-items-center">
+                                    <i class="material-icons-outlined me-2 ms-1">@item.Icon</i>
+                                    <span>@item.Name</span>
+                                </label>
+                            </div>
+                        }
+                    </div>
+                </div>
+                <div class="from__btn text-center ">
+                    <button type="submit" class="btn btn-add">@(IsAdd ? "Thêm" :"Sửa") Lĩnh vực</button>
+                </div>
+            </EditForm>
+        </div>
+
+        <div class="modal__success @(isAddSuccess ? " d-block" : "d-none" )">   
+            <div @onclick="CloseModalAsync" class="icon-close">
+                <span class="material-icons">
+                    close
+                </span>
+            </div>
+            <div>
+                <h3 class="text-center mb-0">Bạn đã <span>@(IsAdd ? "thêm" : "sửa") @(Area.IsPinned ? "lĩnh vực ưu tiên" : "lĩnh vực mới")</span></h3>
+                <p class="text-center mb-0">thành công</p>
+            </div>
+        </div>  
+
+    </div>
+</div>
+
+@code {
+}
+

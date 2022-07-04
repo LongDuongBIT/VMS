@@ -1,5 +1,52 @@
 ﻿@inject IJSRuntime JsRuntime
 
+<div class="overlay @display">
+
+    <div class="min-overlay @(isShowValidation ? "d-block" : "d-none")">
+
+        <div class="validate-success">
+
+            <div class="min-overlay--icon">
+                <span @onclick="@CloseModal" class="material-icons">
+                    close
+                </span>
+            </div>
+
+            <div class="validate-success__text">
+                <span class="green-text">Bạn đã</span>
+                <span class="blue-text">xác nhận ngày tình nguyện</span>
+                <span class="green-text">thành công</span>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="pop-up @(isShowValidation ? "d-none" : "d-block")">
+
+        <div class="pop-up__icon-close">
+            <span @onclick="@CloseModal" class="material-icons">close</span>
+        </div>
+
+        <div class="pop-up__title">
+            Xác nhận ngày tình nguyện
+        </div>
+
+        <div class="pop-up__chosen">
+            <div class="chosen d-flex">
+                <input type="radio" class="chosen-1" id="update" name="option" />
+                <label class="label-1" for="update">Cập nhật mã vạch</label>
+            </div>
+            <div class="chosen d-flex">
+                <input type="radio" class="chosen-2" id="record" name="option" />
+                <label class="label-2" for="record">Ghi nhận ngày tình nguyện</label>
+                <input type="number" class="day-number" value="10" readonly/>
+            </div>
+        </div>
+
+        <button class="pop-up__confirm" @onclick="@ShowModalValidationSucess">Xác nhận</button>
+    </div>
+</div>
+
 <div class="container__list-result">
     @*<SearchResult />*@
     <div class="container-member">
@@ -11,20 +58,20 @@
                     <div class="activity-space"></div>
                     <div class="activity-container">
                         <div class="activity__img">
-                            @if (!string.IsNullOrEmpty(item.Activity.Banner))
-                            {
-                                <img src="@item.Activity.Banner" alt="Avatar">
-                            }
+                            <img src="@item.Activity.Banner" alt="Avatar">
                         </div>
                         <div class="activity__content">
                             <div class="activity__content__title">
-                                <p class="member-name1"><a href="@Routes.ActivityInfo/@item.Activity.Id">@item.Activity.Name</a></p>
+                                <p class="member-name1">
+                                    <a href="@Routes.ActivityInfo/@item.Id">
+                                        @item.Activity.Name
+                                    </a>
+                                </p>
                             </div>
                             <div class="activity__content__icon d-flex">
                                 <div class="stars-rating">
-                                    <VMS.Pages.Organization.RatingPage.Stars
-                                        StarRating="item.Rating"
-                                        StarRatingChanged="async (e) => await UpdateRatingAsync(e, item)" />
+                                    <VMS.Pages.Organization.RatingPage.Stars StarRating="@item.Rating"
+                                                                     StarRatingChanged="async (e) => await UpdateRatingAsync(e, item)" />
                                 </div>
                                 <div class="org-pic d-flex">
                                     <div class="org-pic__icon d-flex">
@@ -33,11 +80,30 @@
                                         </span>
                                     </div>
                                     <div class="org-pic__name">
-                                        <a href="@Routes.OrgProfile/@item.Activity.OrgId">
-                                            @item.Activity.Organizer.FullName
+                                        <a href="@Routes.OrgProfile/@item.Organizer.Id">
+                                            @item.Organizer.FullName
                                         </a>
                                     </div>
                                 </div>
+                            </div>
+                            <div class="activity__content__volunteer">
+                                <div class="activity__content__volunteer-day">
+                                    <div class="d-flex">
+                                        <span class="material-icons-outlined">
+                                            check_circle
+                                        </span>
+                                        <div class="name">Ghi nhận ngày tình nguyện: 123</div>
+                                    </div>
+                                    <div class="d-flex">
+                                        <span class="material-icons-outlined">
+                                            check_circle
+                                        </span>
+                                        <div class="name">Cập nhật mã vạch</div>
+                                    </div>
+                                </div>
+                                <button class="activity__content__volunteer-validate" style="background-color: @color" @onclick="ToggleButton">
+                                    @buttonValidate
+                                </button>
                             </div>
                         </div>
                         <div class="activity__icon d-flex">
@@ -45,7 +111,7 @@
                                 @*Pop-up để report*@
                                 <span id="member-report_icon" class="material-icons">report_problem</span>
                             </button>
-                            <button class="activity__icon__comment" @onclick="@(async () => await ShowCommentPopUpAsync(item))" id="popup-comment_icon">
+                            <button class="activity__icon__comment" @onclick="@(()=>ShowCommentPopUpAsync(item))" id="popup-comment_icon">
                                 @*Pop-up để comment*@
                                 <span id="member-comment_icon" class="material-icons">comment</span>
                             </button>
@@ -63,4 +129,32 @@
 </div>
 
 @code {
+    string buttonValidate = "Nhận quà";
+    string color = "#18A0FB";
+    string display = "d-none";
+
+    void ToggleButton()
+    {
+        buttonValidate = "Đã nhận quà";
+        color = "#B4B4B4";
+        display = "d-block";
+    }
+
+
+    [CascadingParameter]
+    private BlazoredModalInstance ValidationModal { get; set; }
+    void CloseModal()
+    {
+        display = "d-none";
+    }
+
+    bool isShowValidation = false;
+    void ShowModalValidationSucess()
+    {
+        isShowValidation = !isShowValidation;
+        if (isShowValidation == false)
+        {
+            ValidationModal.CloseAsync();
+        }
+    }
 }

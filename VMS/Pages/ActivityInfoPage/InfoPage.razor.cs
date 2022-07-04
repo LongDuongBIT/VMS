@@ -1,7 +1,9 @@
-﻿using Blazored.Modal.Services;
+﻿using Blazored.Modal;
+using Blazored.Modal.Services;
 using Microsoft.AspNetCore.Components;
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 using VMS.Application.Interfaces;
 using VMS.Application.ViewModels;
 using VMS.Common;
@@ -23,6 +25,9 @@ namespace VMS.Pages.ActivityInfoPage
 
         [Inject]
         private IIdentityService IdentityService { get; set; }
+
+        [Inject]
+        private NavigationManager NavigationManager { get; set; }
 
         protected override void OnInitialized()
         {
@@ -65,5 +70,24 @@ namespace VMS.Pages.ActivityInfoPage
             IdentityService.UpdateUser(currentUser);
             isFav = !isFav;
         }
-    }
+
+        private async Task ShowEditRequirementAsync()
+        {
+            ModalParameters parameters = new();
+            parameters.Add("ActId", Activity.Id);
+            Modal.Show<Admin.ActivityManagement.EditRequirement>("", parameters, BlazoredModalOptions.GetModalOptions());
+        }
+
+        private void OnClickNavigateToEditActivty(int activityId)
+        {
+            NavigationManager.NavigateTo(Routes.EditActivity + "/" + activityId, true);
+        }
+
+        private void ShowImage()
+        {
+            var parameters = new ModalParameters();
+            parameters.Add("Image", Activity.Banner);
+            Modal.Show<Admin.DetailReportPage.WatchImageReport>("", parameters, BlazoredModalOptions.GetModalOptions());
+        }
+    }    
 }

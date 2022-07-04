@@ -1,5 +1,7 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Identity;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using VMS.Application.ViewModels;
 using VMS.Domain.Models;
@@ -21,10 +23,20 @@ namespace VMS.Application.Automapper
             CreateMap<Activity, CreateActivityViewModel>();
             CreateMap<Activity, ViewActivityViewModel>()
                 .ForMember(dest => dest.CreatedDate, opt => opt.MapFrom(src => src.CreatedDate.ToString("dd/MM/yyyy")));
+
             CreateMap<Area, AreaViewModel>();
+            CreateMap<AreaViewModel, Area>();
+            CreateMap<PaginatedList<Area>, PaginatedList<AreaViewModel>>();
+
             CreateMap<Activity, UserWithActivityViewModel>();
-            CreateMap<Skill, SkillViewModel>();
+
+            CreateMap<SkillViewModel, Skill>();
+            CreateMap<Skill, SkillViewModel>()
+                .ForMember(dest => dest.SubSkills, opt => opt.MapFrom(src => src.SubSkills.Where(x => !x.IsDeleted)));
+            CreateMap<PaginatedList<Skill>, PaginatedList<SkillViewModel>>();
+
             CreateMap<User, UserViewModel>()
+                .ForMember(x => x.Faculty, opt => opt.MapFrom(src => src.Faculty.Name))
                 .ForMember(x => x.Areas, opt => opt.MapFrom(src => src.UserAreas.OrderByDescending(x => x.Area.IsPinned).Select(x => new AreaViewModel
                 {
                     Id = x.AreaId,
@@ -73,16 +85,51 @@ namespace VMS.Application.Automapper
                 .ForMember(x => x.Organizer, opt => opt.MapFrom(src => src.Activity.Organizer));
             CreateMap<PaginatedList<Recruitment>, PaginatedList<RecruitmentViewModel>>();
             CreateMap<RecruitmentRating, RecruitmentRatingViewModel>();
+            CreateMap<Recruitment, ListVolunteerViewModel>();
+            CreateMap<PaginatedList<Recruitment>, PaginatedList<ListVolunteerViewModel>>();
+            MapAccountToUserAndBack();
+
+            CreateMap<PaginatedList<User>, PaginatedList<UserViewModel>>();
+            CreateMap<EditRequirementViewModel, Feedback>();
+            CreateMap<Recruitment, ListVolunteerViewModel>();
         }
 
         private void MapReportToFeedback()
         {
             CreateMap<ReportViewModel, Feedback>()
-                .ForMember(dest => dest.CreatedDate, opt => opt.MapFrom(src => DateTime.Now))
-                .ForMember(dest => dest.CreatedBy, opt => opt.MapFrom(src => src.ReportBy))
-                .ForMember(dest => dest.Content, opt => opt.MapFrom(src => src.DesReport))
-                .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.UserId))
-                .ForMember(dest => dest.ActivityId, opt => opt.MapFrom(src => src.ActivityId));
+                .ForMember(dest => dest.CreatedBy, opt => opt.MapFrom(src => src.ReportBy));
+            CreateMap<Feedback, ReportViewModel>()
+                .ForMember(x => x.ActivityName, opt => opt.MapFrom(src => src.Activity.Name))
+                .ForMember(x => x.ReportBy, opt => opt.MapFrom(src => src.CreatedBy))
+                .ForMember(x => x.ReporterName, opt => opt.MapFrom(src => src.Reporter.FullName))
+                .ForMember(x => x.HandlerName, opt => opt.MapFrom(src => src.Handler.UserName))
+                .ForMember(x => x.Reasons, opt => opt.MapFrom(src => src.ReasonReports.Select(x => x.Reason).ToList()))
+                .ForMember(x => x.Images, opt => opt.MapFrom(src => src.ImageReports.Select(x => x.Image).ToList()));
+            CreateMap<PaginatedList<Feedback>, PaginatedList<ReportViewModel>>();
+        }
+
+        private void MapAccountToUserAndBack()
+        {
+            PasswordHasher<User> hasher = new();
+            CreateMap<CreateAccountViewModel, User>()
+                .ForMember(x => x.Id, opt => opt.Ignore())
+                .ForMember(x => x.UserName, opt => opt.MapFrom(src => src.UserName))
+                .ForMember(x => x.PasswordHash, opt => opt.MapFrom(src => !string.IsNullOrEmpty(src.Password)
+                                                                          ? hasher.HashPassword(null, src.Password)
+                                                                          : hasher.HashPassword(null, src.StudentId)))
+                .ForMember(x => x.Email, opt => opt.MapFrom(src => src.Email))
+                .ForMember(x => x.EmailConfirmed, opt => opt.MapFrom(src => !string.IsNullOrEmpty(src.UserName)))
+                .ForMember(x => x.CreatedDate, opt => opt.MapFrom(src => DateTime.Now))
+                .ForMember(x => x.LockoutEnabled, opt => opt.MapFrom(src => true))
+                .ForMember(x => x.NormalizedEmail, opt => opt.MapFrom(src => src.Email.ToUpper()))
+                .ForMember(x => x.NormalizedUserName, opt => opt.MapFrom(src => src.UserName.ToUpper()));
+
+            CreateMap<PaginatedList<User>, PaginatedList<AccountViewModel>>();
+            CreateMap<User, AccountViewModel>()
+                .ForMember(x => x.Faculty, opt => opt.MapFrom(src => src.FacultyId.HasValue ? src.Faculty.Name : ""));
+            CreateMap<AccountViewModel, User>()
+                .ForMember(x => x.NormalizedEmail, opt => opt.MapFrom(src => src.Email.ToUpper()))
+                .ForMember(x => x.NormalizedUserName, opt => opt.MapFrom(src => src.UserName.ToUpper()));
         }
     }
 }

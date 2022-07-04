@@ -1,10 +1,14 @@
-﻿import { smoothScrollTo, hookFileUploadEvent } from './common';
+﻿import { smoothScrollTo, hookFileUploadEvent, floatBackToTop } from './common';
 import homepage from './homepage';
 import activitiespage from './activityInfo';
 import userProfile from './userProfile';
 import organizationProfile from './organizationProfile';
+import volunteerListPage from './volunteerListPage';
+import admin from './admin';
+import gloryAvenue from './gloryAvenue';
 
 export const SmoothScrollTo = (element) => smoothScrollTo(element);
+export const FloatBackToTop = (isFloat) => floatBackToTop(isFloat);
 export const HookFileUploadEvent = (previewImg, fileUploadRefId, discardBtn, imgContainerId, originalSrc) => hookFileUploadEvent(previewImg, fileUploadRefId, discardBtn, imgContainerId, originalSrc);
 export const PlayVideo = (src) => homepage.playVideo(src);
 export const FilterCarousel = () => homepage.filterCarousel();
@@ -21,4 +25,10 @@ export const OrganizeCarousel = () => organizationProfile.organizeCarousel();
 export const RankCarousel = () => homepage.rankCarousel();
 export const EditProfileCarousel = (count) => organizationProfile.editProfileCarousel(count);
 export const AddOutsideClickMenuHandler = (dotnetHelper, methodName) => organizationProfile.addOutsideClickMenuHandler(dotnetHelper, methodName);
+export const SaveAs = (filename, bytesBase64) => volunteerListPage.saveAsFile(filename, bytesBase64);
+
+export const SaveAsFile = (filename, bytesBase64) => admin.saveAsFile(filename, bytesBase64);
+export const RankingCarousel = () => gloryAvenue.rankingCarousel();
+export const AddOutsideClickNavBarHandler = () => homepage.addOutsideClickNavBarHandler();
+export const addOutsideClickNotificationHandler = () => homepage.addOutsideClickNotificationHandler();
 

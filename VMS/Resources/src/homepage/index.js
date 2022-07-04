@@ -3,7 +3,7 @@
 const playVideo = (src) => {
     const video = document.querySelector('.video-header__source');
     video.src = src;
-    video.play();   
+    video.play();
 }
 
 const filterCarousel = () => {
@@ -13,12 +13,20 @@ const filterCarousel = () => {
         nav: true,
         responsive: {
             0: {
+                items: 3,
+                slideBy: 3
+            },
+            768: {
                 items: 4,
-                slideBy: 4,
+                slideBy: 4
+            },
+            992: {
+                items: 6,
+                slideBy: 6
             },
             1200: {
                 items: 6,
-                slideBy: 6,
+                slideBy: 6
             },
         }
     })
@@ -31,8 +39,11 @@ const logoBanerCarousel = () => {
         nav: true,
         responsive: {
             0: {
-                items: 1,
+                items: 1
             },
+            992: {
+                items: 1
+            }
         }
     })
 }
@@ -102,7 +113,11 @@ const rankCarousel = () => {
         responsive: {
             0: {
                 items: 1,
-                stagePadding: 50,
+                stagePadding: 0,
+            },
+            992: {
+                items: 1,
+                stagePadding: 100,
             },
             1200: {
                 items: 1,
@@ -116,4 +131,62 @@ const rankCarousel = () => {
     })
 }
 
-export default { playVideo, filterCarousel, logoBanerCarousel, getUserLocation, setUserLocation, increaseNumber, rankCarousel };
+const addOutsideClickNavBarHandler = () => {
+    const hideNavBar = () => {
+        if ($('#navbarSupportedContent').hasClass('show')) {
+            $('#navbarSupportedContent').removeClass('show');
+        }
+
+        if (!$('my-navbar__hamburger-wrapper__btn').hasClass('collapsed')) {
+            $('my-navbar__hamburger-wrapper__btn').addClass('collapsed');
+        }
+    };
+
+    window.addEventListener('click', (e) => {
+        if (!document.getElementById('navbarSupportedContent').contains(e.target)) {
+            hideNavBar();
+        }
+    });
+
+    let previousUrl = '';
+    const observer = new MutationObserver(function (mutations) {
+        if (location.href !== previousUrl) {
+            previousUrl = location.href;
+            hideNavBar();
+        }
+    });
+
+    const config = { subtree: true, childList: true };
+    observer.observe(document, config);
+}
+
+const addOutsideClickNotificationHandler = () => {
+    const hideNavBar = () => {
+        if ($('#notifycation-board').hasClass('show')) {
+            $('#notifycation-board').removeClass('show');
+        }
+
+        if (!$('notification-link').hasClass('collapsed')) {
+            $('notification-link').addClass('collapsed');
+        }
+    };
+
+    window.addEventListener('click', (e) => {
+        if (!document.getElementById('notifycation-board').contains(e.target)) {
+            hideNavBar();
+        }
+    });
+
+    let previousUrl = '';
+    const observer = new MutationObserver(function (mutations) {
+        if (location.href !== previousUrl) {
+            previousUrl = location.href;
+            hideNavBar();
+        }
+    });
+
+    const config = { subtree: true, childList: true };
+    observer.observe(document, config);
+}
+
+export default { playVideo, filterCarousel, logoBanerCarousel, getUserLocation, setUserLocation, increaseNumber, rankCarousel, addOutsideClickNavBarHandler, addOutsideClickNotificationHandler };

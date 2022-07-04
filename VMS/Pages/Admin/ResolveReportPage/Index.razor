@@ -1,0 +1,19 @@
+﻿@using VMS.Application.ViewModels
+@layout AdminLayout
+
+@attribute [Route(Routes.AdminResolveReport)]
+@attribute [Authorize(Roles = "Admin")]
+
+<div class="my-content">
+    <Filter OnFilterChanged="OnFilterChanged" />
+    <ListReport Filter="@filter" />
+</div>
+
+@code {
+    private FilterReportViewModel filter = new();
+
+    private void OnFilterChanged(FilterReportViewModel filter)
+    {
+        this.filter = filter;
+    }
+}

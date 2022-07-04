@@ -37,22 +37,24 @@
                     <h4 class="title-discript__text">Lý do bạn muốn báo cáo</h4>
                     <h4 class="title-discript__check check">(*)</h4>
                 </div>
-                <button @onclick="ListReason" class="btn my-btn" type="button" id="dropdownMenuButton1" data-bs-toggle="" aria-expanded="false">
-                    <span class="material-icons-outlined my-icon-dropdown">
-                        arrow_drop_down
-                    </span>
-                </button>
-                <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1" style="display:@(showListReason ? "block" : "none")">
-                    @foreach (var reason in Reasons)
-                    {
-                        <li>
-                            <div class="dropdown-item" href="#">
-                                <input id="@reason" @onchange="x => { CheckboxClicked(reason, x.Value); }" type="checkbox" class="dropdown-item--checkbox" />
-                                <label for="@reason">@reason</label>
-                            </div>
-                        </li>
-                    }
-                </ul>
+                <div class="dropdown">
+                    <button @onclick="ListReason" class="btn my-btn" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
+                        <span class="material-icons-outlined my-icon-dropdown">
+                            arrow_drop_down
+                        </span>
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+                        @foreach (var reason in Reasons)
+                        {
+                            <li>
+                                <div class="dropdown-item" href="#">
+                                    <input id="@reason" @onchange="x => { CheckboxClicked(reason, x.Value); }" type="checkbox" class="dropdown-item--checkbox" />
+                                    <label for="@reason">@reason</label>
+                                </div>
+                            </li>
+                        }
+                    </ul>
+                </div>
             </div>
 
             <div class="report-description mb-3">
@@ -60,7 +62,7 @@
                     <h4 class="title-discript__text">Mô tả về báo cáo</h4>
                     <h4 class="title-discript__check check">(*)</h4>
                 </div>
-                <InputTextArea @bind-Value="@report.DesReport" @onclick="TextArea" class="form-control" id="exampleFormControlTextarea1" rows=""></InputTextArea>
+                <InputTextArea @bind-Value="@report.Content" @onclick="TextArea" class="form-control" id="exampleFormControlTextarea1" rows=""></InputTextArea>
             </div>
 
             <div class="attached-proof">
@@ -69,30 +71,23 @@
                     <h4 class="title-attach__check check"> (*)</h4>
                 </div>
                 <div class="add-file position-relative d-flex align-items-center justify-content-center">
-                        <InputFile OnChange="OnInputFileAsync" multiple type="file" name="file" id="file" class="inputfile" />
-                        <div class="d-flex align-items-center">
-                            <i class="material-icons my-icon-upload">
-                                cloud_upload
-                            </i>
-                            <span class="@(isChangeFile ? "d-none" : "d-block")">Kéo và thả hình ảnh liên quan tại dây</span>
-                        </div>
-                        <p class="m-0">
-                            @if (selectedImages is not null)
+                    <InputFile OnChange="OnInputFileAsync" multiple type="file" name="file" id="file" class="inputfile" accept="image/*" />
+                    <div class="d-flex align-items-center">
+                        <i class="material-icons my-icon-upload">
+                            cloud_upload
+                        </i>
+                        <span class="@(isChangeFile ? "d-none" : "d-block")">Kéo và thả hình ảnh liên quan tại đây</span>
+                    </div>
+                    <p class="m-0">
+                        @if (selectedImages is not null)
+                        {
+                            @foreach (var item in selectedImages)
                             {
-                                @foreach (var item in selectedImages)
-                                {
-                                    @if (!item.ContentType.Contains("image/"))
-                                    {
-                                        <div style="color: #f14747">File không đúng định dạng..</div>
-                                    }
-                                    else
-                                    {
-                                        @item.Name
-                                        @space
-                                    }
-                                }
+                                @item.Name
+                                @space
                             }
-                        </p>
+                        }
+                    </p>
 
                 </div>
             </div>

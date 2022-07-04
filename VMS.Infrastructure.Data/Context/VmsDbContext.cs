@@ -6,7 +6,7 @@ using VMS.Domain.Models;
 
 namespace VMS.Infrastructure.Data.Context
 {
-    public class VmsDbContext : IdentityDbContext
+    public class VmsDbContext : IdentityDbContext<User, AppRole, string, IdentityUserClaim<string>, UserRole, IdentityUserLogin<string>, IdentityRoleClaim<string>, IdentityUserToken<string>>
     {
         public DbSet<Activity> Activities { get; set; }
         public DbSet<ActivityAddress> ActivityAddresses { get; set; }
@@ -27,6 +27,9 @@ namespace VMS.Infrastructure.Data.Context
         public DbSet<Favorite> Favorites { get; set; }
         public DbSet<ImageReport> ImageReports { get; set; }
         public DbSet<Faculty> Faculties { get; set; }
+        public new DbSet<AppRole> Roles { get; set; }
+        public new DbSet<UserRole> UserRoles { get; set; }
+        public DbSet<Setting> Settings { get; set; }
 
         public VmsDbContext(DbContextOptions<VmsDbContext> options) : base(options)
         {
@@ -35,6 +38,18 @@ namespace VMS.Infrastructure.Data.Context
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
+
+            builder.Entity<UserRole>()
+                .HasOne(x => x.Role)
+                .WithMany(x => x.UserRoles)
+                .HasForeignKey(x => x.RoleId);
+
+            builder.Entity<UserRole>()
+                .HasOne(x => x.User)
+                .WithMany(x => x.UserRoles)
+                .HasForeignKey(x => x.UserId);
+
+            builder.Entity<User>().HasDiscriminator<string>("Discriminator").HasValue("User");
 
             builder.Entity<User>()
                 .HasMany(x => x.Activities)
@@ -80,6 +95,16 @@ namespace VMS.Infrastructure.Data.Context
                 .WithMany(x => x.Feedbacks)
                 .HasForeignKey(x => x.UserId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<Feedback>()
+                .HasOne(x => x.Handler)
+                .WithMany(x => x.ReportHandles)
+                .HasForeignKey(x => x.UpdatedBy);
+
+            builder.Entity<Feedback>()
+                .HasOne(x => x.Reporter)
+                .WithMany(x => x.UserReports)
+                .HasForeignKey(x => x.CreatedBy);
 
             builder.Entity<Skill>().HasData(
                     new Skill { Id = 1, Name = "Kiến thức chuyên ngành" },
@@ -133,25 +158,48 @@ namespace VMS.Infrastructure.Data.Context
 
             builder.Entity<Area>().Property(x => x.Color).HasDefaultValue("#18A0FB");
 
-            builder.Entity<IdentityRole>().HasData(new IdentityRole
+            const string ADMIN_ROLE_ID = "a18be9c0-aa65-4af8-bd17-00bd9344e570";
+            builder.Entity<AppRole>().HasData(new AppRole
             {
-                Id = "a18be9c0-aa65-4af8-bd17-00bd9344e570",
+                Id = ADMIN_ROLE_ID,
                 Name = Role.Admin.ToString(),
                 NormalizedName = Role.Admin.ToString()
             });
 
-            builder.Entity<IdentityRole>().HasData(new IdentityRole
+            builder.Entity<AppRole>().HasData(new AppRole
             {
                 Id = "a18be9c0-aa65-4af8-bd17-00bd9344e571",
                 Name = Role.Organization.ToString(),
                 NormalizedName = Role.Organization.ToString()
             });
 
-            builder.Entity<IdentityRole>().HasData(new IdentityRole
+            builder.Entity<AppRole>().HasData(new AppRole
             {
                 Id = "a18be9c0-aa65-4af8-bd17-00bd9344e572",
                 Name = Role.User.ToString(),
                 NormalizedName = Role.User.ToString()
+            });
+
+            // seed admin account
+            const string ADMIN_ID = "a18be9c0-aa65-4af8-bd17-00bd9344e575";
+
+            PasswordHasher<User> hasher = new();
+            builder.Entity<User>().HasData(new User
+            {
+                Id = ADMIN_ID,
+                UserName = "admin",
+                NormalizedUserName = "admin",
+                Email = "hsv.ueh@ueh.edu.vn",
+                NormalizedEmail = "hsv.ueh@ueh.edu.vn",
+                EmailConfirmed = true,
+                PasswordHash = hasher.HashPassword(null, "Admin@123"),
+                SecurityStamp = string.Empty
+            });
+
+            builder.Entity<UserRole>().HasData(new UserRole
+            {
+                RoleId = ADMIN_ROLE_ID,
+                UserId = ADMIN_ID
             });
 
             builder.Entity<Faculty>()

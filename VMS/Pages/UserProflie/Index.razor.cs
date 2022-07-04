@@ -11,11 +11,13 @@ namespace VMS.Pages.UserProflie
 {
     public partial class Index : ComponentBase
     {
+        private bool isLoading;
         private bool isUser = false;
         private UserViewModel user;
         private List<ActivityViewModel> currentActivities, favoriteActivities, endedActivities = new();
 
         [Parameter] public string UserId { get; set; }
+        [Parameter] public bool IsUsedForAdmin { get; set; }
         [CascadingParameter] public string CurrentUserId { get; set; }
 
         [Inject] private NavigationManager NavigationManager { get; set; }
@@ -30,34 +32,35 @@ namespace VMS.Pages.UserProflie
 
         private async Task GetAllActivities()
         {
+            isLoading = true;
+
             currentActivities = await ActivityService.GetAllUserActivityViewModelsAsync(UserId, StatusAct.Current, DateTime.Now);
 
             favoriteActivities = await ActivityService.GetAllUserActivityViewModelsAsync(UserId, StatusAct.Favor, DateTime.Now);
 
             endedActivities = await ActivityService.GetAllUserActivityViewModelsAsync(UserId, StatusAct.Ended, DateTime.Now);
+
+            isLoading = false;
         }
 
         private void ValidateUserProfile()
         {
-            if (string.IsNullOrEmpty(UserId) && string.IsNullOrEmpty(CurrentUserId))
-            {
-                NavigationManager.NavigateTo(Routes.LogIn, true);
-            }
-
             UserId = string.IsNullOrEmpty(UserId) ? CurrentUserId : UserId;
 
             user = UserService.GetUserViewModel(UserId);
 
-            if (user == null)
+            if (string.IsNullOrEmpty(UserId) || user is null)
             {
-                NavigationManager.NavigateTo(Routes.HomePage, true);
+                NavigationManager.NavigateTo("404", true);
+                return;
             }
 
-            isUser = string.Equals(UserId, CurrentUserId, System.StringComparison.Ordinal);
+            isUser = string.Equals(UserId, CurrentUserId, StringComparison.Ordinal);
 
             if (isUser && !IsValidProfile(user))
             {
                 NavigationManager.NavigateTo(Routes.EditUserProfile, true);
+                return;
             }
         }
 
@@ -65,7 +68,6 @@ namespace VMS.Pages.UserProflie
         {
             return !string.IsNullOrEmpty(user.Class)
                 && !string.IsNullOrEmpty(user.Email)
-                && !string.IsNullOrEmpty(user.PhoneNumber)
                 && user.Skills.Count != 0
                 && user.Areas.Count != 0;
         }

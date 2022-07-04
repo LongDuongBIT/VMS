@@ -72,7 +72,8 @@ namespace VMS.Pages.Organization.Activities
             isEditPage = true;
             CreateActivityViewModel activityFromParam = await ActivityService.GetCreateActivityViewModelAsync(ActivityId);
 
-            if (activityFromParam == null || !string.Equals(activityFromParam.OrgId, IdentityService.GetCurrentUserId()))
+            if (activityFromParam == null
+                || !string.Equals(activityFromParam.OrgId, UserId) && !IdentityService.IsInRole(UserId, Role.Admin))
             {
                 NavigationManager.NavigateTo("404");
                 return;
@@ -187,7 +188,7 @@ namespace VMS.Pages.Organization.Activities
             isLoading = true;
             try
             {
-                activity.OrgId = IdentityService.GetCurrentUserId();
+                activity.OrgId = string.IsNullOrEmpty(activity.OrgId) ? UserId : activity.OrgId;
                 RenderFragment title;
 
                 if (!isEditPage)
@@ -216,10 +217,15 @@ namespace VMS.Pages.Organization.Activities
                 }
 
                 isLoading = false;
+
+                string redirectUrl = IdentityService.IsInRole(UserId, Role.Admin)
+                                    ? $"{Routes.AdminActivityInfo}/{ActivityId}"
+                                    : $"{Routes.ActivityInfo}/{ActivityId}";
+
                 var modalParams = new ModalParameters();
                 modalParams.Add("Title", title);
                 modalParams.Add("CTAText", "Xem hoạt động");
-                modalParams.Add("CTALink", $"{Routes.ActivityInfo}/{ActivityId}");
+                modalParams.Add("CTALink", redirectUrl);
                 modalParams.Add("CancelText", "Đóng");
                 await ShowModalAsync(typeof(NotificationPopup), modalParams);
                 NavigationManager.NavigateTo($"{Routes.OrgProfile}/{UserId}", true);

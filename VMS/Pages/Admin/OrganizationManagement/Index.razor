@@ -1,0 +1,99 @@
+﻿@layout AdminLayout
+
+@attribute [Route(Routes.AdminOrganizationManagement)]
+@attribute [Authorize(Roles = "Admin")]
+<div class="row">
+    <div class="col-lg-10 p-0 mx-auto">
+        <VMS.Pages.SearchOrganizer.SearchAndFilter Filter="filter" FilterChanged="OnFilterChangedAsync" />
+        <div class="arrange-bar mb-3">
+            <div class="labels">
+                <span class="mb-1">Số hoạt động đã tổ chức</span>
+                <span>Thứ hạng</span>
+            </div>
+            <div class="boxes-group">
+                <span>
+                    @if (filter.OrderByTotalActivity.HasValue && filter.OrderByTotalActivity.Value)
+                    {
+                        <label for="increase" class="d-flex align-items-center">
+                            <input @onchange="() => OnOrderByTotalActivityChanged(true)"
+                               type="radio" name="order" id="increase" checked />
+                            <span>Tăng dần</span>
+                        </label>
+                    }
+                    else
+                    {
+                        <label for="increase" class="d-flex align-items-center">
+                            <input @onchange="() => OnOrderByTotalActivityChanged(true)"
+                               type="radio" name="order" id="increase"/>
+                            <span>Tăng dần</span>
+                        </label>
+                    }
+                    &#160;
+                </span>
+                <span>
+                    @if (filter.OrderByTotalActivity.HasValue && !filter.OrderByTotalActivity.Value)
+                    {
+                        <label for="decrease" class="d-flex align-items-center">
+                            <input @onchange="() => OnOrderByTotalActivityChanged(false)"
+                                   type="radio" name="order" value="decrease" id="decrease" checked />
+                            <span>Giảm dần</span>
+                        </label>
+                    }
+                    else
+                    {      
+                        <label for="decrease" class="d-flex align-items-center">
+                            <input @onchange="() => OnOrderByTotalActivityChanged(false)"
+                               type="radio" name="order" value="decrease" id="decrease" />
+                            <span>Giảm dần</span>
+                        </label>
+                    }
+                    &#160;  
+                </span>
+                <span>
+                    @if (filter.OrderByRank.HasValue && filter.OrderByRank.Value)
+                    {
+                        <label for="higher-to-lower" class="d-flex align-items-center">
+                            <input @onchange="() => OnOrderByRankChanged(true)"
+                                   type="radio" name="rank" id="higher-to-lower" checked />
+                            <span>Từ cao xuống thấp</span>
+                        </label>
+                    }
+                    else
+                    {
+                        <label for="higher-to-lower" class="d-flex align-items-center">
+                            <input @onchange="() => OnOrderByRankChanged(true)"
+                               type="radio" name="rank" id="higher-to-lower" />
+                            <span>Từ cao xuống thấp</span>
+                        </label>
+                    }
+                    &#160;
+                </span>
+                <span>
+                    @if (filter.OrderByRank.HasValue && !filter.OrderByRank.Value)
+                    {
+                        <label for="lower-to-higher" class="d-flex align-items-center">
+                            <input @onchange="() => OnOrderByRankChanged(false)"
+                                   type="radio" name="rank" id="lower-to-higher" checked />
+                            <span>Từ thấp đến cao</span>
+                        </label>
+                    }
+                    else
+                    {
+                        <label for="lower-to-higher" class="d-flex align-items-center">
+                            <input @onchange="() => OnOrderByRankChanged(false)"
+                               type="radio" name="rank" id="lower-to-higher" />
+                            <span>Từ thấp đến cao</span>
+                        </label>
+                    }
+                    &#160;
+                </span>
+            </div>
+        </div>
+        <VMS.Pages.SearchOrganizer.SearchResult IsOrgResult="true" IsUsedForAdmin="true" HaveLevel="true"
+                                                PagedResult="pagedResult" OnPageChanged="OnPageChangedAsync" />
+    </div>
+</div>
+
+@code {
+
+}

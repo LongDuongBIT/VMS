@@ -1,0 +1,47 @@
+﻿@inject IJSRuntime JS;
+
+<Spinner IsLoading="isLoading" />
+
+<div class="row">
+    @if (pagedResult is not null && pagedResult.Items.Count != 0)
+    {
+        @foreach (var item in pagedResult.Items)
+        {
+            <div class="col-4">
+                <div class="d-flex align-items-center area ">
+                    <div class="div-checkbox">
+                        @if (ChosenAreas.Contains(item))
+                        {
+                            <input @onchange="async () => await OnChooseAreaAsync(item)" class="check-box @(ShowCheckbox?"d-block":"d-none")" type="checkbox" checked>
+                        }
+                        else
+                        {
+                            <input @onchange="async () => await OnChooseAreaAsync(item)" class="check-box @(ShowCheckbox?"d-block":"d-none")" type="checkbox">
+                        }
+                    </div>
+                    <div @onclick="async () => await ShowEditModalAsync(item)" class="d-flex align-items-center align-items-center cursor-pointer">
+                        <i class="material-icons-outlined me-2 ms-3 col-4" style="background:@item.Color">@item.Icon</i>
+                        @if (item.IsPinned)
+                        {
+                            <span class="lm-text col-8" style="color:@item.Color">@item.Name</span>
+                        }
+                        else
+                        {
+                            <span class="lm-text col-8">@item.Name</span>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    }
+</div>
+
+<div class="d-flex justify-content-center">
+    <Pager CurrentPage="@pagedResult.PageIndex"
+           PageCount="@pagedResult.TotalPages"
+           OnPageChanged="HandlePageChangedAsync"
+           ShowPageNumbers="true" />
+</div>
+
+@code {
+}

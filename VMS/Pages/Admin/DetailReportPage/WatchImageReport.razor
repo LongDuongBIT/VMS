@@ -1,0 +1,22 @@
+﻿
+<div class="myModal">
+    <span class="material-icons close" @onclick="CloseModal">  cancel  </span>
+    <div class="bg-close" @onclick="CloseModal"></div>
+    <div class="cover-image">
+        @if (Image != "")
+        {
+            <img class="modal-content" src="@Image">
+        }
+    </div>
+</div>
+@code {
+    [CascadingParameter]
+    public BlazoredModalInstance Modal { get; set; }
+
+    private async Task CloseModal()
+    {
+        Modal.CloseAsync();
+    }
+    [Parameter]
+    public string Image { get; set; } = "";
+}
